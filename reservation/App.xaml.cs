@@ -10,6 +10,12 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using reservation.DBContexts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using reservation.Services.ReservationProviders;
+using reservation.Services.ReservationCreators;
+using reservation.Services.ReservationConflictValidators;
 
 namespace reservation
 {
@@ -18,15 +24,30 @@ namespace reservation
     /// </summary>
     public partial class App : Application
     {
+        private const string CONNECTION_STRING = "Data Source=reservation.db";
         private readonly Hotel _hotel;
         private readonly NavigationStore _navigationStore;
+        ReservationDbContextFactory _reservationDbContextFactory;
+
         public App()
         {
-            _hotel = new Hotel("Badhan Sen's Hotel");
+            _reservationDbContextFactory = new ReservationDbContextFactory(CONNECTION_STRING);
+
+            IReservationProvider reservationProvider = new DatabaseReservationProvider(_reservationDbContextFactory);
+            IReservationCreator reservationCreator = new DatabaseReservationCreator(_reservationDbContextFactory);
+            IReservationConflictValidator reservationConflictValidator = new DatabaseReservationConflictValidator(_reservationDbContextFactory);
+
+            ReservationBook reservationBook = new ReservationBook(reservationProvider, reservationCreator, reservationConflictValidator);
+            _hotel = new Hotel("Badhan Sen's Hotel", reservationBook);
             _navigationStore = new NavigationStore();
         }
         protected override void OnStartup(StartupEventArgs e)
         {
+            DbContextOptions options = new DbContextOptionsBuilder().UseSqlite(CONNECTION_STRING).Options;
+            ReservationDbContext dbContext = new ReservationDbContext(options);
+
+            dbContext.Database.Migrate();
+
             _navigationStore.CurrentViewModel = CreateReservationListingViewModel();
             MainWindow = new MainWindow()
             {
@@ -41,7 +62,7 @@ namespace reservation
         }
         private ReservationListingViewModel CreateReservationListingViewModel()
         {
-            return new ReservationListingViewModel(_hotel, new NavigationService(_navigationStore, CreateMakeReservationViewModel));
+            return ReservationListingViewModel.LoadViewModel(_hotel, new NavigationService(_navigationStore, CreateMakeReservationViewModel));
         }
     }
 }

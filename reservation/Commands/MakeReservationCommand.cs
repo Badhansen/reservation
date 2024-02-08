@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace reservation.Commands
 {
-    public class MakeReservationCommand : CommandBase
+    public class MakeReservationCommand : AsyncCommandBase
     {
         private readonly MakeReservationViewModel _makeReservationViewModel;
         private readonly Hotel _hotel;
@@ -40,7 +40,7 @@ namespace reservation.Commands
             return !string.IsNullOrEmpty(_makeReservationViewModel.UserName) && 
                 base.CanExecute(parameter);
         }
-        public override void Execute(object? parameter)
+        public override async Task ExecuteAsync(object? parameter)
         {
             Reservation reservation = new Reservation(
                 new RoomID(
@@ -50,13 +50,17 @@ namespace reservation.Commands
                     _makeReservationViewModel.EndDate);
             try
             {
-                _hotel.MakeReservation(reservation);
+                await _hotel.MakeReservation(reservation);
                 MessageBox.Show("Successfully reservation completed", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 _reservationViewNavigationService.Navigate();
             }
             catch (ReservationConflictException) 
             {
                 MessageBox.Show("This room is alread taken", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Fail to make reservation", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
