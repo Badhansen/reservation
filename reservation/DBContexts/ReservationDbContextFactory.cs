@@ -16,7 +16,7 @@ namespace reservation.DBContexts
         }
         public ReservationDbContext CreateDbContext()
         {
-            DbContextOptions options = new DbContextOptionsBuilder().UseSqlite("Data Source=reservation.db").Options;
+            DbContextOptions options = new DbContextOptionsBuilder().UseSqlite(_connectionString).Options;
             return new ReservationDbContext(options);
         }
     }

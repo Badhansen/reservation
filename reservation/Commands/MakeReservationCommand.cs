@@ -1,6 +1,7 @@
 ﻿using reservation.Exceptions;
 using reservation.Models;
 using reservation.Services;
+using reservation.Stores;
 using reservation.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,14 @@ namespace reservation.Commands
     public class MakeReservationCommand : AsyncCommandBase
     {
         private readonly MakeReservationViewModel _makeReservationViewModel;
-        private readonly Hotel _hotel;
+        private readonly HotelStore _hotelStore;
         private readonly NavigationService _reservationViewNavigationService;
 
-        public MakeReservationCommand(MakeReservationViewModel makeReservationViewModel, Hotel hotel,
+        public MakeReservationCommand(MakeReservationViewModel makeReservationViewModel, HotelStore hotelStore,
             NavigationService reservationViewNavigationService)
         {
             _makeReservationViewModel = makeReservationViewModel;
-            _hotel = hotel;
+            _hotelStore = hotelStore;
             _reservationViewNavigationService = reservationViewNavigationService;
             _makeReservationViewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
@@ -50,9 +51,9 @@ namespace reservation.Commands
                     _makeReservationViewModel.EndDate);
             try
             {
-                await _hotel.MakeReservation(reservation);
+                await _hotelStore.MakeReservation(reservation);
                 MessageBox.Show("Successfully reservation completed", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                _reservationViewNavigationService.Navigate();
+                //_reservationViewNavigationService.Navigate();
             }
             catch (ReservationConflictException) 
             {

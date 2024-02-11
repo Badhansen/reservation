@@ -11,6 +11,7 @@
         Height="450" 
         Width="800"
         FontSize="14">
+    <ScrollViewer>
     <Grid MaxWidth="600" Margin="20 10">
         <Grid.Resources>
             <DataTemplate DataType="{x:Type viewModel:MakeReservationViewModel}">
@@ -22,4 +23,5 @@
         </Grid.Resources>
         <ContentControl Content="{Binding CurrentViewModel}" />
     </Grid>
+    </ScrollViewer>
 </Window>

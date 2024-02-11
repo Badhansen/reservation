@@ -26,6 +26,7 @@ namespace reservation
     {
         private const string CONNECTION_STRING = "Data Source=reservation.db";
         private readonly Hotel _hotel;
+        private readonly HotelStore _hotelStore;
         private readonly NavigationStore _navigationStore;
         ReservationDbContextFactory _reservationDbContextFactory;
 
@@ -39,6 +40,7 @@ namespace reservation
 
             ReservationBook reservationBook = new ReservationBook(reservationProvider, reservationCreator, reservationConflictValidator);
             _hotel = new Hotel("Badhan Sen's Hotel", reservationBook);
+            _hotelStore = new HotelStore(_hotel);
             _navigationStore = new NavigationStore();
         }
         protected override void OnStartup(StartupEventArgs e)
@@ -58,11 +60,11 @@ namespace reservation
         }
         private MakeReservationViewModel CreateMakeReservationViewModel()
         {
-            return new MakeReservationViewModel(_hotel, new NavigationService(_navigationStore, CreateReservationListingViewModel));
+            return new MakeReservationViewModel(_hotelStore, new NavigationService(_navigationStore, CreateReservationListingViewModel));
         }
         private ReservationListingViewModel CreateReservationListingViewModel()
         {
-            return ReservationListingViewModel.LoadViewModel(_hotel, new NavigationService(_navigationStore, CreateMakeReservationViewModel));
+            return ReservationListingViewModel.LoadViewModel(_hotelStore, CreateMakeReservationViewModel(), new NavigationService(_navigationStore, CreateMakeReservationViewModel));
         }
     }
 }
