@@ -53,7 +53,7 @@ namespace reservation.Commands
             {
                 await _hotelStore.MakeReservation(reservation);
                 MessageBox.Show("Successfully reservation completed", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                //_reservationViewNavigationService.Navigate();
+                _reservationViewNavigationService.Navigate();
             }
             catch (ReservationConflictException) 
             {
